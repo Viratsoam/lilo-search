@@ -55,9 +55,13 @@ export class SearchResponseDto {
 
   /** Pagination information */
   pagination?: {
-    from: number;
+    from?: number;
     size: number;
-    totalPages: number;
+    totalPages?: number;
+    /** Cursor for next page (use in searchAfter parameter) */
+    nextCursor?: (string | number)[];
+    /** Whether there are more results */
+    hasMore?: boolean;
   };
 }
 

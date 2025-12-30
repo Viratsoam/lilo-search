@@ -22,6 +22,7 @@ Main search endpoint using JSON body format.
   },
   "size": 20,
   "from": 0,
+  "searchAfter": null,
   "featureFlags": {
     "searchStrategy": "hybrid",
     "hybridSearchEnabled": true,
@@ -52,9 +53,9 @@ Main search endpoint using JSON body format.
   ],
   "took": 45,
   "pagination": {
-    "from": 0,
     "size": 20,
-    "totalPages": 87
+    "nextCursor": [38.35, "a3bfa04681079bb2df691aa4"],
+    "hasMore": true
   }
 }
 ```

@@ -6,14 +6,14 @@ import axios from 'axios';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface Product {
-  _id: string;
+  id: string;
   title: string;
-  description: string;
-  vendor: string;
-  category: string;
-  supplier_rating: number;
-  inventory_status: string;
-  unit_of_measure: string;
+  description?: string;
+  vendor?: string;
+  category?: string;
+  supplier_rating?: number;
+  inventory_status?: string;
+  unit_of_measure?: string;
   bulk_pack_size?: string;
   region_availability?: string[];
   score?: number;
@@ -21,9 +21,19 @@ interface Product {
 
 interface SearchResponse {
   query: string;
-  total: number | { value: number };
+  total: {
+    value: number;
+    relation: 'eq' | 'gte';
+  };
   results: Product[];
   took: number;
+  pagination?: {
+    size: number;
+    nextCursor?: (string | number)[];
+    hasMore?: boolean;
+    from?: number;
+    totalPages?: number;
+  };
 }
 
 export default function Home() {
@@ -37,7 +47,8 @@ export default function Home() {
   const [results, setResults] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
+  const [nextCursor, setNextCursor] = useState<(string | number)[] | null>(null);
+  const [previousCursors, setPreviousCursors] = useState<(string | number)[][]>([]);
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
@@ -53,7 +64,7 @@ export default function Home() {
     }
   };
 
-  const handleSearch = async (pageNum = 0) => {
+  const handleSearch = async (cursor: (string | number)[] | null = null, isNext: boolean = true) => {
     if (!query.trim()) {
       setError('Please enter a search query');
       return;
@@ -61,47 +72,96 @@ export default function Home() {
 
     setLoading(true);
     setError(null);
-    setPage(pageNum);
 
     try {
-      const params: any = {
-        q: query,
+      // Build request body with JSON format
+      const requestBody: any = {
+        query: query.trim(),
         size: 20,
-        from: pageNum * 20,
       };
 
-      if (userId) params.userId = userId;
-      if (category) params.category = category;
-      if (vendor) params.vendor = vendor;
-      if (region) params.region = region;
-      if (minRating) params.minRating = parseFloat(minRating);
-      if (inventoryStatus) params.inventoryStatus = inventoryStatus;
+      // Add filters
+      const filters: any = {};
+      if (category) filters.category = category;
+      if (vendor) filters.vendor = vendor;
+      if (region) filters.region = region;
+      if (minRating) filters.minRating = parseFloat(minRating);
+      if (inventoryStatus) filters.inventoryStatus = inventoryStatus;
 
-      const response = await axios.get<SearchResponse>(`${API_URL}/search`, {
-        params,
+      if (Object.keys(filters).length > 0) {
+        requestBody.filters = filters;
+      }
+
+      // Add user ID for personalization
+      if (userId) {
+        requestBody.userId = userId;
+      }
+
+      // Use search_after for pagination (recommended)
+      if (cursor) {
+        requestBody.searchAfter = cursor;
+      }
+
+      const response = await axios.post<SearchResponse>(`${API_URL}/search`, requestBody, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
       setResults(response.data);
+      
+      // Update pagination state
+      const pagination = response.data.pagination;
+      if (pagination?.nextCursor) {
+        setNextCursor(pagination.nextCursor);
+        if (isNext) {
+          // Add current cursor to history for back navigation
+          if (cursor) {
+            setPreviousCursors((prev) => [...prev, cursor]);
+          }
+        }
+      } else {
+        setNextCursor(null);
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Search failed. Please try again.');
       setResults(null);
+      setNextCursor(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSearch(0);
+  const handleNextPage = () => {
+    if (nextCursor) {
+      handleSearch(nextCursor, true);
+    }
   };
 
-  const totalResults = results?.total
-    ? typeof results.total === 'object'
-      ? results.total.value
-      : results.total
-    : 0;
+  const handlePreviousPage = () => {
+    if (previousCursors.length > 0) {
+      const prevCursors = [...previousCursors];
+      prevCursors.pop(); // Remove last cursor
+      setPreviousCursors(prevCursors);
+      const prevCursor = prevCursors.length > 0 ? prevCursors[prevCursors.length - 1] : null;
+      handleSearch(prevCursor, false);
+    } else {
+      // Go back to first page
+      handleSearch(null, false);
+      setPreviousCursors([]);
+    }
+  };
 
-  const totalPages = Math.ceil(totalResults / 20);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPreviousCursors([]);
+    setNextCursor(null);
+    handleSearch(null, false);
+  };
+
+  const totalResults = results?.total?.value || 0;
+  const hasMore = results?.pagination?.hasMore || false;
+  const canGoBack = previousCursors.length > 0 || (results && !nextCursor);
 
   return (
     <div className="container">
@@ -227,7 +287,7 @@ export default function Home() {
             <>
               <div className="results-list">
                 {results.results.map((product) => (
-                  <div key={product._id} className="result-item">
+                  <div key={product.id} className="result-item">
                     <div className="result-title">{product.title}</div>
                     <div className="result-vendor">by {product.vendor}</div>
                     <div className="result-description">
@@ -276,32 +336,23 @@ export default function Home() {
                 ))}
               </div>
 
-              {totalPages > 1 && (
+              {(hasMore || canGoBack) && (
                 <div className="pagination">
                   <button
                     className="pagination-button"
-                    onClick={() => handleSearch(page - 1)}
-                    disabled={page === 0}
+                    onClick={handlePreviousPage}
+                    disabled={!canGoBack}
                   >
                     Previous
                   </button>
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const pageNum = Math.max(0, Math.min(page - 2 + i, totalPages - 5));
-                    if (i >= totalPages) return null;
-                    return (
-                      <button
-                        key={pageNum}
-                        className={`pagination-button ${page === pageNum ? 'active' : ''}`}
-                        onClick={() => handleSearch(pageNum)}
-                      >
-                        {pageNum + 1}
-                      </button>
-                    );
-                  })}
+                  <div className="pagination-info">
+                    Showing {results.results.length} of {totalResults.toLocaleString()} results
+                    {hasMore && ' (more available)'}
+                  </div>
                   <button
                     className="pagination-button"
-                    onClick={() => handleSearch(page + 1)}
-                    disabled={page >= totalPages - 1}
+                    onClick={handleNextPage}
+                    disabled={!hasMore}
                   >
                     Next
                   </button>

@@ -46,10 +46,21 @@
         },
         "from": {
           "type": "integer",
-          "description": "Number of results to skip (for pagination)",
+          "description": "Number of results to skip (for pagination) - DEPRECATED: Use searchAfter for better performance",
           "minimum": 0,
           "default": 0,
           "example": 0
+        },
+        "searchAfter": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "number" }
+            ]
+          },
+          "description": "Cursor for search_after pagination (recommended for deep pagination). Use the nextCursor from previous response.",
+          "example": [38.35, "a3bfa04681079bb2df691aa4"]
         },
         "useHybridSearch": {
           "type": "boolean",
@@ -134,15 +145,34 @@
           "properties": {
             "from": {
               "type": "integer",
+              "description": "Offset for from-based pagination (deprecated)",
               "example": 0
             },
             "size": {
               "type": "integer",
+              "description": "Number of results per page",
               "example": 20
             },
             "totalPages": {
               "type": "integer",
+              "description": "Total number of pages (only for from-based pagination)",
               "example": 87
+            },
+            "nextCursor": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "number" }
+                ]
+              },
+              "description": "Cursor for next page (use in searchAfter parameter)",
+              "example": [38.35, "a3bfa04681079bb2df691aa4"]
+            },
+            "hasMore": {
+              "type": "boolean",
+              "description": "Whether there are more results available",
+              "example": true
             }
           }
         }

@@ -57,12 +57,16 @@ export class SearchRequestDto {
   @Max(100)
   size?: number;
 
-  /** Number of results to skip for pagination (default: 0) */
+  /** Number of results to skip for pagination (default: 0) - DEPRECATED: Use searchAfter for better performance */
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
   from?: number;
+
+  /** Cursor for pagination using search_after (recommended for deep pagination) */
+  @IsOptional()
+  searchAfter?: (string | number)[];
 
   /** Enable hybrid search - keyword + semantic (default: true) - DEPRECATED: Use featureFlags.searchStrategy instead */
   @IsOptional()

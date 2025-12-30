@@ -82,6 +82,7 @@ export class SearchService {
       };
       size?: number;
       from?: number;
+      searchAfter?: (string | number)[]; // Cursor for search_after pagination
       useHybridSearch?: boolean; // Legacy parameter
       featureFlags?: {
         searchStrategy?: SearchStrategy;
@@ -98,6 +99,7 @@ export class SearchService {
       filters = {},
       size = 20,
       from = 0,
+      searchAfter,
       useHybridSearch: requestHybridSearch,
       featureFlags: requestFeatureFlags,
     } = options;
@@ -139,7 +141,7 @@ export class SearchService {
     const effectiveUserType = explicitUserType || (userId ? this.userTypeService.getUserType(userId) : null);
 
     // Build the search query with effective feature flags
-    const searchQuery = this.buildSearchQuery(
+    const searchQueryBody = this.buildSearchQuery(
       query,
       queryEmbedding,
       filters,
@@ -148,27 +150,56 @@ export class SearchService {
       effectiveFlags,
     );
 
+    // Build complete search query with sorting for search_after pagination
+    // Sort by score descending, then by title.keyword for stability
+    // Note: _id cannot be used for sorting without enabling fielddata
+    const searchQuery: any = {
+      ...searchQueryBody,
+      sort: [
+        { _score: { order: 'desc' } },
+        { 'title.keyword': { order: 'asc', missing: '_last' } },
+      ],
+    };
+
     try {
       // Log query structure for debugging (remove in production)
       if (userId) {
         this.logger.debug('Personalization query:', JSON.stringify(searchQuery, null, 2));
       }
       
-      const response = await this.elasticsearchService.client.search({
+      // Build search parameters
+      const searchParams: any = {
         index: this.INDEX_NAME,
         body: searchQuery,
         size,
-        from,
-      });
+      };
+
+      // Use search_after if provided, otherwise fall back to from
+      if (searchAfter && searchAfter.length > 0) {
+        searchParams.body.search_after = searchAfter;
+        this.logger.debug(`Using search_after pagination: ${JSON.stringify(searchAfter)}`);
+      } else if (from > 0) {
+        searchParams.from = from;
+        this.logger.debug(`Using from pagination: ${from}`);
+      }
+
+      const response = await this.elasticsearchService.client.search(searchParams);
+
+      // Extract sort values from last hit for next page cursor
+      const hits = response.hits.hits;
+      const nextCursor = hits.length > 0 && hits.length === size
+        ? hits[hits.length - 1].sort
+        : undefined;
 
       return {
         total: response.hits.total,
-        results: response.hits.hits.map((hit: any) => ({
+        results: hits.map((hit: any) => ({
           ...hit._source,
           score: hit._score,
           id: hit._id,
         })),
         took: response.took,
+        nextCursor, // Cursor for next page
       };
     } catch (error) {
       this.logger.error('Search failed', error);

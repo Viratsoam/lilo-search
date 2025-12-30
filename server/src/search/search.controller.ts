@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Query,
   Param,
   ValidationPipe,
   Logger,
@@ -83,7 +82,8 @@ export class SearchController {
       userType: request.userType,
       filters: request.filters || {},
       size: request.size || 20,
-      from: request.from || 0,
+      from: request.from,
+      searchAfter: request.searchAfter,
       useHybridSearch: effectiveHybridSearch,
       featureFlags: {
         searchStrategy: featureFlags.searchStrategy,
@@ -98,7 +98,22 @@ export class SearchController {
     const totalValue = typeof results.total === 'object' ? results.total.value : results.total || 0;
     const totalRelation = typeof results.total === 'object' ? results.total.relation : 'eq';
     const pageSize = request.size || 20;
-    const totalPages = Math.ceil(totalValue / pageSize);
+    
+    // Build pagination response
+    const pagination: any = {
+      size: pageSize,
+    };
+
+    // If using search_after, include cursor and hasMore
+    if (request.searchAfter || results.nextCursor) {
+      pagination.nextCursor = results.nextCursor;
+      pagination.hasMore = results.nextCursor !== undefined;
+    } else {
+      // Fallback to from-based pagination
+      const from = request.from || 0;
+      pagination.from = from;
+      pagination.totalPages = Math.ceil(totalValue / pageSize);
+    }
 
     return {
       query: request.query,
@@ -108,58 +123,26 @@ export class SearchController {
       },
       results: results.results,
       took: results.took,
-      pagination: {
-        from: request.from || 0,
-        size: pageSize,
-        totalPages,
-      },
+      pagination,
     };
   }
 
   /**
-   * GET /search (Legacy endpoint - kept for backward compatibility)
-   * @deprecated Use POST /search with JSON body instead. This endpoint will be removed in a future version.
+   * POST /search/suggestions
+   * Get search suggestions using JSON body format
+   * 
+   * @example
+   * POST /search/suggestions
+   * Content-Type: application/json
+   * {
+   *   "query": "glov",
+   *   "size": 5
+   * }
    */
-  @Get()
-  async searchLegacy(
-    @Query('q') query: string,
-    @Query('userId') userId?: string,
-    @Query('userType') userType?: string,
-    @Query('category') category?: string,
-    @Query('vendor') vendor?: string,
-    @Query('region') region?: string,
-    @Query('minRating') minRating?: string,
-    @Query('inventoryStatus') inventoryStatus?: string,
-    @Query('size') size?: string,
-    @Query('from') from?: string,
-    @Query('useHybridSearch') useHybridSearch?: string,
-  ) {
-    this.logger.warn('Using legacy GET endpoint. Please migrate to POST /search with JSON body.');
-    
-    const results = await this.searchService.search(query || '', {
-      userId,
-      userType,
-      filters: {
-        category,
-        vendor,
-        region,
-        minRating: minRating ? parseFloat(minRating) : undefined,
-        inventoryStatus,
-      },
-      size: size ? parseInt(size, 10) : 20,
-      from: from ? parseInt(from, 10) : 0,
-      useHybridSearch: useHybridSearch !== 'false',
-    });
-
-    return {
-      query: query || '',
-      ...results,
-    };
-  }
-
-  @Get('suggestions')
-  async getSuggestions(@Query('q') query: string) {
-    return this.searchService.getSuggestions(query || '');
+  @Post('suggestions')
+  @HttpCode(HttpStatus.OK)
+  async getSuggestions(@Body(ValidationPipe) request: { query: string; size?: number }) {
+    return this.searchService.getSuggestions(request.query || '', request.size);
   }
 
   @Get('product/:id')

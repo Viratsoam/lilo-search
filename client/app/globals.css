@@ -251,9 +251,20 @@ a {
 
 .pagination {
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
   margin-top: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.pagination-info {
+  flex: 1;
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
 }
 
 .pagination-button {

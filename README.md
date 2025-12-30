@@ -128,15 +128,41 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Search API
 
+All endpoints use **JSON request body** format for scalability and type safety.
+
 ```bash
 # Basic search
-curl "http://localhost:3001/search?q=nitrile%20gloves"
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"nitrile gloves","size":20}'
 
 # With filters
-curl "http://localhost:3001/search?q=pump&category=Industrial&minRating=4.0"
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query":"pump",
+    "filters":{"category":"Industrial","minRating":4.0},
+    "size":20
+  }'
 
 # Personalized search
-curl "http://localhost:3001/search?q=gloves&userId=user_136"
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"gloves","userId":"user_136","size":20}'
+
+# Search with pagination (search_after)
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query":"gloves",
+    "size":20,
+    "searchAfter":[38.35,"a3bfa04681079bb2df691aa4"]
+  }'
+
+# Get suggestions
+curl -X POST http://localhost:3001/search/suggestions \
+  -H "Content-Type: application/json" \
+  -d '{"query":"glov","size":5}'
 ```
 
 ### Example Queries
