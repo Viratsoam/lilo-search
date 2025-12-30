@@ -17,136 +17,54 @@ export class IndexingService {
   ) {}
 
   // Get Elasticsearch index mapping with analyzers
+  // Loads base schema from elasticsearch-schema.json and applies dynamic configurations
   getIndexMapping() {
-    return {
-      settings: {
-        number_of_shards: 1,
-        number_of_replicas: 0,
-        analysis: {
-          analyzer: {
-            // Custom analyzer for product search with synonym expansion
-            product_analyzer: {
-              type: 'custom',
-              tokenizer: 'standard',
-              filter: [
-                'lowercase',
-                'synonym_filter',
-                'stop',
-                'asciifolding', // Handle accented characters
-              ],
-            },
-            // Analyzer for exact matching (no stemming)
-            exact_analyzer: {
-              type: 'custom',
-              tokenizer: 'keyword',
-              filter: ['lowercase'],
-            },
-            // Analyzer for category hierarchy
-            category_analyzer: {
-              type: 'custom',
-              tokenizer: 'pattern',
-              pattern: '\\s*>\\s*',
-              filter: ['lowercase', 'trim'],
-            },
-          },
-          filter: {
-            synonym_filter: {
-              type: 'synonym',
-              synonyms: this.loadSynonyms(),
-              expand: true,
-            },
-          },
-        },
-      },
-      mappings: {
-        properties: {
-          // _id is automatically handled by Elasticsearch, don't define it
-          vendor: {
-            type: 'text',
-            fields: {
-              keyword: { type: 'keyword' },
-            },
-            analyzer: 'product_analyzer',
-          },
-          sku: {
-            type: 'keyword',
-            fields: {
-              text: { type: 'text', analyzer: 'product_analyzer' },
-            },
-          },
-          title: {
-            type: 'text',
-            analyzer: 'product_analyzer',
-            fields: {
-              exact: { type: 'text', analyzer: 'exact_analyzer' },
-              keyword: { type: 'keyword' },
-            },
-            // Boost is applied in queries, not in mapping
-          },
-          description: {
-            type: 'text',
-            analyzer: 'product_analyzer',
-          },
-          unit_of_measure: {
-            type: 'keyword',
-            fields: {
-              normalized: { type: 'keyword' },
-            },
-          },
-          category: {
-            type: 'text',
-            analyzer: 'category_analyzer',
-            fields: {
-              keyword: { type: 'keyword' },
-              exact: { type: 'text', analyzer: 'exact_analyzer' },
-            },
-            // Boost is applied in queries, not in mapping
-          },
-          attributes: {
-            type: 'object',
-            properties: {
-              // Dynamic mapping for attributes
-            },
-            dynamic: true,
-          },
-          // Searchable text field combining all text fields
-          searchable_text: {
-            type: 'text',
-            analyzer: 'product_analyzer',
-            store: false,
-          },
-          region_availability: {
-            type: 'keyword',
-          },
-          supplier_rating: {
-            type: 'float',
-          },
-          inventory_status: {
-            type: 'keyword',
-          },
-          bulk_pack_size: {
-            type: 'text',
-            analyzer: 'product_analyzer',
-            fields: {
-              keyword: { type: 'keyword' },
-            },
-          },
-          // Vector field for semantic search (if embeddings enabled)
-          ...(this.embeddingService.isEnabled() && {
-            embedding: {
-              type: 'dense_vector',
-              dims: this.embeddingService.getDimension(), // BAAI/bge-small-en: 384 dimensions
-              index: true,
-              similarity: 'cosine',
-            },
-          }),
-          // Metadata fields for boosting
-          normalized_category: { type: 'keyword' },
-          normalized_unit: { type: 'keyword' },
-          normalized_attributes: { type: 'object', enabled: false },
-        },
-      },
-    };
+    // Load base schema from file
+    const schemaPath = this.findSchemaFile();
+    if (!schemaPath) {
+      throw new Error('Elasticsearch schema file not found');
+    }
+
+    const baseSchema = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
+
+    // Apply dynamic configurations
+    // 1. Load synonyms dynamically
+    const synonyms = this.loadSynonyms();
+    baseSchema.settings.analysis.filter.synonym_filter.synonyms = synonyms;
+
+    // 2. Conditionally add embedding field if embeddings are enabled
+    if (this.embeddingService.isEnabled()) {
+      baseSchema.mappings.properties.embedding = {
+        type: 'dense_vector',
+        dims: this.embeddingService.getDimension(), // BAAI/bge-small-en: 384 dimensions
+        index: true,
+        similarity: 'cosine',
+      };
+    } else {
+      // Remove embedding field if not enabled
+      delete baseSchema.mappings.properties.embedding;
+    }
+
+    // Remove _meta from final schema (it's for documentation only)
+    delete baseSchema._meta;
+
+    return baseSchema;
+  }
+
+  // Find the Elasticsearch schema file
+  private findSchemaFile(): string | null {
+    const possiblePaths = [
+      path.join(__dirname, 'elasticsearch-schema.json'),
+      path.join(process.cwd(), 'src/indexing/elasticsearch-schema.json'),
+      path.join(process.cwd(), 'server/src/indexing/elasticsearch-schema.json'),
+    ];
+
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        return p;
+      }
+    }
+    return null;
   }
 
   private loadSynonyms(): string[] {

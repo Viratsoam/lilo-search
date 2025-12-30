@@ -20,7 +20,8 @@ lilo-search/
 │   ├── src/
 │   │   ├── elasticsearch/   # Elasticsearch service
 │   │   ├── search/          # Search service & controller
-│   │   ├── indexing/         # Indexing service & controller
+│   │   ├── indexing/        # Indexing service & controller
+│   │   │   └── elasticsearch-schema.json  # Elasticsearch index schema
 │   │   ├── utils/           # Data preprocessing, embeddings
 │   │   └── data/            # Data files (products, orders, etc.)
 │   └── package.json
@@ -29,6 +30,31 @@ lilo-search/
 │   └── package.json
 └── docs/                # Documentation
     └── DESIGN.md        # Detailed design documentation
+```
+
+### Elasticsearch Schema
+
+The Elasticsearch index schema is defined in a separate JSON file for easy maintenance and version control:
+
+**Location:** `server/src/indexing/elasticsearch-schema.json`
+
+This schema file includes:
+- **Index Settings:** Shards, replicas, analyzers
+- **Custom Analyzers:** product_analyzer, exact_analyzer, category_analyzer
+- **Field Mappings:** All product fields with types and analyzers
+- **Documentation:** Inline comments explaining each field
+
+**Dynamic Configuration:**
+- Synonyms are loaded from `synonyms.json` at runtime
+- Embedding field is conditionally added if embeddings are enabled
+
+**View Schema:**
+```bash
+# Via API
+curl http://localhost:3001/indexing/mapping
+
+# Or view the file directly
+cat server/src/indexing/elasticsearch-schema.json
 ```
 
 ## 🛠️ Quick Start
@@ -136,6 +162,38 @@ Test these queries to see the search in action:
 - **Data Preprocessor**: Normalizes units, categories, attributes, cleans text
 - **Embedding Service**: Generates vector embeddings using BAAI/bge-small-en (runs locally, always enabled)
 
+### Elasticsearch Schema
+
+The index schema is defined in a **separate JSON file** for maintainability:
+
+**File:** `server/src/indexing/elasticsearch-schema.json`
+
+**Features:**
+- ✅ **Separated from code** - Easy to version control and modify
+- ✅ **Well-documented** - Inline comments explain each field
+- ✅ **Dynamic configuration** - Synonyms and embeddings loaded at runtime
+- ✅ **Version controlled** - Schema changes tracked in git
+
+**Schema Components:**
+- **Settings:** Shards, replicas, analyzers configuration
+- **Analyzers:** 3 custom analyzers (product, exact, category)
+- **Mappings:** All field definitions with types and analyzers
+- **Metadata:** Schema version and documentation
+
+**View Schema:**
+```bash
+# Via API endpoint
+curl http://localhost:3001/indexing/mapping | jq
+
+# Or view the file directly
+cat server/src/indexing/elasticsearch-schema.json | jq
+```
+
+**Modify Schema:**
+1. Edit `server/src/indexing/elasticsearch-schema.json`
+2. Restart the service
+3. Recreate index: `POST /indexing/reindex`
+
 ### Frontend (Next.js)
 
 - **Search UI**: Modern, responsive interface
@@ -162,11 +220,12 @@ Test these queries to see the search in action:
 ## 🧪 Testing with Postman
 
 1. **Health Check**: `GET http://localhost:3001/health`
-2. **Create Index**: `POST http://localhost:3001/indexing/create`
-3. **Index Products**: `POST http://localhost:3001/indexing/index`
-4. **Search**: `GET http://localhost:3001/search?q=nitrile gloves`
-5. **Get Product**: `GET http://localhost:3001/search/product/:id`
-6. **Get Stats**: `GET http://localhost:3001/search/stats`
+2. **View Schema**: `GET http://localhost:3001/indexing/mapping`
+3. **Create Index**: `POST http://localhost:3001/indexing/create`
+4. **Index Products**: `POST http://localhost:3001/indexing/index`
+5. **Search**: `POST http://localhost:3001/search` (JSON body) or `GET http://localhost:3001/search?q=nitrile gloves`
+6. **Get Product**: `GET http://localhost:3001/search/product/:id`
+7. **Get Stats**: `GET http://localhost:3001/search/stats`
 
 ## 🎯 Key Features Explained
 

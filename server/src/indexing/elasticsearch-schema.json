@@ -1,0 +1,178 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "analyzer": {
+        "product_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "synonym_filter",
+            "stop",
+            "asciifolding"
+          ],
+          "description": "Custom analyzer for product search with synonym expansion, handles accented characters"
+        },
+        "exact_analyzer": {
+          "type": "custom",
+          "tokenizer": "keyword",
+          "filter": ["lowercase"],
+          "description": "Analyzer for exact phrase matching (no stemming)"
+        },
+        "category_analyzer": {
+          "type": "custom",
+          "tokenizer": "pattern",
+          "pattern": "\\s*>\\s*",
+          "filter": ["lowercase", "trim"],
+          "description": "Analyzer for category hierarchy search (handles inconsistent separators like >, >>)"
+        }
+      },
+      "filter": {
+        "synonym_filter": {
+          "type": "synonym",
+          "synonyms": [],
+          "expand": true,
+          "description": "Synonym filter - synonyms are loaded dynamically from synonyms.json"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "vendor": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "description": "Exact match field for filtering"
+          }
+        },
+        "analyzer": "product_analyzer",
+        "description": "Vendor name - searchable with synonym expansion"
+      },
+      "sku": {
+        "type": "keyword",
+        "fields": {
+          "text": {
+            "type": "text",
+            "analyzer": "product_analyzer"
+          }
+        },
+        "description": "Product SKU - exact match with text search variant"
+      },
+      "title": {
+        "type": "text",
+        "analyzer": "product_analyzer",
+        "fields": {
+          "exact": {
+            "type": "text",
+            "analyzer": "exact_analyzer",
+            "description": "Exact phrase matching"
+          },
+          "keyword": {
+            "type": "keyword",
+            "description": "Exact match for filtering"
+          }
+        },
+        "description": "Product title - highest boost in search (3.0x)"
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "product_analyzer",
+        "description": "Product description - boost 1.5x in search"
+      },
+      "unit_of_measure": {
+        "type": "keyword",
+        "fields": {
+          "normalized": {
+            "type": "keyword",
+            "description": "Normalized unit (kg, kg., kilograms -> kilogram)"
+          }
+        },
+        "description": "Unit of measure with normalized variant"
+      },
+      "category": {
+        "type": "text",
+        "analyzer": "category_analyzer",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "description": "Exact category for filtering"
+          },
+          "exact": {
+            "type": "text",
+            "analyzer": "exact_analyzer"
+          }
+        },
+        "description": "Product category - boost 2.0x in search, handles hierarchy"
+      },
+      "attributes": {
+        "type": "object",
+        "dynamic": true,
+        "description": "Dynamic attributes object - handles inconsistent attribute keys"
+      },
+      "searchable_text": {
+        "type": "text",
+        "analyzer": "product_analyzer",
+        "store": false,
+        "description": "Combined searchable text from all fields"
+      },
+      "region_availability": {
+        "type": "keyword",
+        "description": "Array of ISO country codes (BR, MX, ES, etc.)"
+      },
+      "supplier_rating": {
+        "type": "float",
+        "description": "Supplier rating (0.0 to 5.0)"
+      },
+      "inventory_status": {
+        "type": "keyword",
+        "description": "Inventory status: in_stock, low_stock, out_of_stock"
+      },
+      "bulk_pack_size": {
+        "type": "text",
+        "analyzer": "product_analyzer",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        },
+        "description": "Bulk pack size information"
+      },
+      "normalized_category": {
+        "type": "keyword",
+        "description": "Normalized category (handles >>, inconsistent spacing)"
+      },
+      "normalized_unit": {
+        "type": "keyword",
+        "description": "Normalized unit of measure"
+      },
+      "normalized_attributes": {
+        "type": "object",
+        "enabled": false,
+        "description": "Normalized attributes (handles typos like bulkaPck -> bulk_pack)"
+      },
+      "embedding": {
+        "type": "dense_vector",
+        "dims": 384,
+        "index": true,
+        "similarity": "cosine",
+        "description": "Vector embeddings for semantic search (BAAI/bge-small-en, 384 dimensions). Added dynamically if embeddings are enabled."
+      }
+    }
+  },
+  "_meta": {
+    "description": "Elasticsearch index schema for Lilo Search Engine",
+    "version": "1.0.0",
+    "index_name": "products",
+    "notes": [
+      "Synonyms are loaded dynamically from synonyms.json",
+      "Embedding field is conditionally added based on embedding service status",
+      "Field boosts are applied in queries, not in mapping",
+      "Dynamic attributes handle inconsistent attribute keys"
+    ]
+  }
+}
+
