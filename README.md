@@ -28,7 +28,8 @@ lilo-search/
 ├── client/              # Next.js frontend
 │   ├── app/             # Next.js app directory
 │   └── package.json
-└── docs/                # Documentation
+└── docs/                # Documentation (see docs/README.md for full index)
+    ├── README.md        # Documentation index
     ├── DESIGN.md        # Detailed design documentation
     ├── FINAL_PROJECT_DOCUMENT.md  # Complete project overview
     ├── REQUIREMENTS_CHECKLIST.md  # Requirements checklist

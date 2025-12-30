@@ -47,6 +47,7 @@ git push -u origin main
 ```
 lilo-search/
 ├── README.md                    # Main project README
+├── README.md                   # Documentation index
 ├── FINAL_PROJECT_DOCUMENT.md   # Complete project overview
 ├── TEST_CASES.md               # 42 test cases
 ├── REQUIREMENTS_CHECKLIST.md   # Requirements verification

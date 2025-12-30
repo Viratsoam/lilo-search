@@ -635,7 +635,7 @@ See [SETUP.md](./SETUP.md) for detailed deployment instructions.
 
 ### Main Documents
 
-1. **[README.md](./README.md)** - Quick start guide
+1. **[README.md](../README.md)** - Quick start guide (root)
 2. **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - Non-technical overview
 3. **[REQUIREMENTS_CHECKLIST.md](./REQUIREMENTS_CHECKLIST.md)** - Requirements verification
 4. **[TEST_CASES.md](./TEST_CASES.md)** - Complete test documentation
@@ -643,17 +643,18 @@ See [SETUP.md](./SETUP.md) for detailed deployment instructions.
 
 ### Technical Documents
 
-1. **[docs/DESIGN.md](./docs/DESIGN.md)** - Architecture and design decisions
-2. **[docs/PERSONALIZATION_FACTORS.md](./docs/PERSONALIZATION_FACTORS.md)** - Personalization guide
-3. **[docs/EMBEDDING_MIGRATION.md](./docs/EMBEDDING_MIGRATION.md)** - Embedding model details
-4. **[server/FEATURE_FLAGS.md](./server/FEATURE_FLAGS.md)** - Feature flags documentation
-5. **[server/src/search/README.md](./server/src/search/README.md)** - API documentation
+1. **[DESIGN.md](./DESIGN.md)** - Architecture and design decisions
+2. **[PERSONALIZATION_FACTORS.md](./PERSONALIZATION_FACTORS.md)** - Personalization guide
+3. **[EMBEDDING_MIGRATION.md](./EMBEDDING_MIGRATION.md)** - Embedding model details
+4. **[FEATURE_FLAGS.md](./FEATURE_FLAGS.md)** - Feature flags documentation
+5. **[../server/src/search/README.md](../server/src/search/README.md)** - API documentation
 
 ### Setup Guides
 
 1. **[SETUP.md](./SETUP.md)** - Detailed setup instructions
 2. **[RUN.md](./RUN.md)** - Running the application
 3. **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Quick reference guide
+4. **[README.md](./README.md)** - Documentation index
 
 ---
 
