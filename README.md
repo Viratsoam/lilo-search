@@ -341,8 +341,19 @@ See [Personalization Factors](docs/PERSONALIZATION_FACTORS.md) for detailed docu
 ELASTICSEARCH_NODE=http://localhost:9200
 PORT=3001
 FRONTEND_URL=http://localhost:3000
+
+# Feature Flags (optional - defaults shown)
+SEARCH_ENABLED=true
+SEARCH_STRATEGY=hybrid
+HYBRID_SEARCH_ENABLED=true
+PERSONALIZATION_ENABLED=true
+FUZZY_MATCHING_ENABLED=true
+SYNONYM_EXPANSION_ENABLED=true
+
 # Note: Embeddings use BAAI/bge-small-en (local model) - no API keys needed!
 ```
+
+See [Feature Flags Documentation](docs/FEATURE_FLAGS.md) for complete configuration options.
 
 **Frontend** (`client/.env.local`):
 ```env
@@ -352,8 +363,13 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 ## 📊 Performance
 
 - **Indexing**: ~10,000 products in ~30 seconds
-- **Search Latency**: <50ms (keyword only), ~150ms (with embeddings)
+- **Search Latency**: 
+  - <50ms (keyword only)
+  - ~150ms (hybrid search with embeddings)
+  - ~200ms (with full personalization)
 - **Throughput**: Handles 100+ queries/second
+- **Pagination**: `search_after` supports unlimited result sets (no 10K limit)
+- **Embeddings**: Local BAAI/bge-small-en model (~100MB, cached after first download)
 
 ## 🚀 Production Deployment
 
