@@ -29,7 +29,17 @@ lilo-search/
 │   ├── app/             # Next.js app directory
 │   └── package.json
 └── docs/                # Documentation
-    └── DESIGN.md        # Detailed design documentation
+    ├── DESIGN.md        # Detailed design documentation
+    ├── FINAL_PROJECT_DOCUMENT.md  # Complete project overview
+    ├── REQUIREMENTS_CHECKLIST.md  # Requirements checklist
+    ├── PROJECT_SUMMARY.md  # Non-technical summary
+    ├── QUICK_REFERENCE.md  # Quick reference guide
+    ├── TEST_CASES.md  # Comprehensive test suite
+    ├── GITHUB_SETUP.md  # GitHub setup guide
+    ├── FEATURE_FLAGS.md  # Feature flags documentation
+    ├── EMBEDDING_MIGRATION.md  # Embedding migration guide
+    ├── SETUP.md  # Setup instructions
+    └── RUN.md  # Run instructions
 ```
 
 ### Elasticsearch Schema
@@ -230,18 +240,22 @@ cat server/src/indexing/elasticsearch-schema.json | jq
 ## 📚 Documentation
 
 ### Main Documents
-- **[FINAL_PROJECT_DOCUMENT.md](FINAL_PROJECT_DOCUMENT.md)**: 🎯 **Complete project overview with all requirements, test cases, and innovations**
-- **[TEST_CASES.md](TEST_CASES.md)**: Comprehensive test suite (42 test cases, 100% passing)
-- **[REQUIREMENTS_CHECKLIST.md](REQUIREMENTS_CHECKLIST.md)**: ✅ Complete checklist of all challenge requirements with implementation status
-- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)**: Complete project summary for non-technical stakeholders
-- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)**: Quick reference guide with key features and test results
+- **[Complete Project Overview](docs/FINAL_PROJECT_DOCUMENT.md)**: 🎯 Complete project overview with all requirements, test cases, and innovations
+- **[Test Cases](docs/TEST_CASES.md)**: Comprehensive test suite (42 test cases, 100% passing)
+- **[Requirements Checklist](docs/REQUIREMENTS_CHECKLIST.md)**: ✅ Complete checklist of all challenge requirements with implementation status
+- **[Project Summary](docs/PROJECT_SUMMARY.md)**: Complete project summary for non-technical stakeholders
+- **[Quick Reference](docs/QUICK_REFERENCE.md)**: Quick reference guide with key features and test results
 
 ### Technical Documents
 - **[Backend README](server/README.md)**: Backend setup and API documentation
 - **[Frontend README](client/README.md)**: Frontend setup and usage
 - **[Design Documentation](docs/DESIGN.md)**: Detailed design decisions, trade-offs, and architecture
 - **[Personalization Factors](docs/PERSONALIZATION_FACTORS.md)**: Complete guide to 10 personalization factors
-- **[Feature Flags](server/FEATURE_FLAGS.md)**: Feature flags documentation
+- **[Feature Flags](docs/FEATURE_FLAGS.md)**: Feature flags documentation
+- **[Embedding Migration](docs/EMBEDDING_MIGRATION.md)**: Guide to embedding model migration
+- **[Setup Guide](docs/SETUP.md)**: Detailed setup instructions
+- **[Run Guide](docs/RUN.md)**: How to run the application
+- **[GitHub Setup](docs/GITHUB_SETUP.md)**: GitHub repository setup guide
 
 ## 🧪 Testing with Postman
 
