@@ -249,10 +249,12 @@ cat server/src/indexing/elasticsearch-schema.json | jq
 
 ### Frontend (Next.js)
 
-- **Search UI**: Modern, responsive interface
+- **Search UI**: Modern, responsive interface with JSON body API integration
 - **Filters**: Category, vendor, region, rating, inventory status
-- **Personalization**: User ID input for personalized results
+- **Personalization**: User ID input for personalized results (10-factor system)
+- **Pagination**: Cursor-based pagination using `search_after` with next/previous navigation
 - **Statistics**: Product stats dashboard
+- **Real-time Search**: Instant search results with loading states
 
 ## 📚 Documentation
 
