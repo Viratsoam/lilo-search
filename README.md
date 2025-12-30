@@ -4,11 +4,14 @@ A comprehensive search engine for B2B ecommerce platforms built with **NestJS**,
 
 ## 🚀 Features
 
-- 🔍 **Hybrid Search**: Combines keyword search with semantic vector embeddings
+- 🔍 **Hybrid Search**: Combines keyword search with semantic vector embeddings (BAAI/bge-small-en)
 - 🛡️ **Data Quality Handling**: Normalizes units, handles typos, synonyms, and messy data
-- 👤 **User Personalization**: Boosts products based on user order history
+- 👤 **10-Factor Personalization**: Comprehensive user personalization system
 - 🎯 **Fuzzy Matching**: Handles typos and misspellings automatically
 - 📊 **Advanced Filtering**: Filter by category, vendor, region, rating, inventory status
+- 🔄 **Feature Flags**: Environment-driven and request-level feature flag overrides
+- 📄 **Cursor-Based Pagination**: `search_after` pagination for deep result sets (no 10K limit)
+- 📝 **JSON API**: All endpoints use JSON body format for scalability
 - ⚡ **Fast & Scalable**: Built on Elasticsearch for high performance
 - 🎨 **Modern UI**: Beautiful, responsive frontend with Next.js
 
@@ -170,6 +173,19 @@ curl -X POST http://localhost:3001/search \
     "searchAfter":[38.35,"a3bfa04681079bb2df691aa4"]
   }'
 
+# Search with feature flags override
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query":"gloves",
+    "size":20,
+    "featureFlags":{
+      "searchStrategy":"hybrid",
+      "personalizationEnabled":true,
+      "fuzzyMatchingEnabled":true
+    }
+  }'
+
 # Get suggestions
 curl -X POST http://localhost:3001/search/suggestions \
   -H "Content-Type: application/json" \
@@ -260,13 +276,19 @@ cat server/src/indexing/elasticsearch-schema.json | jq
 
 ## 🧪 Testing with Postman
 
+Import the Postman collection from `docs/postman-collection.json` for comprehensive API testing.
+
+**Key Endpoints:**
 1. **Health Check**: `GET http://localhost:3001/health`
 2. **View Schema**: `GET http://localhost:3001/indexing/mapping`
 3. **Create Index**: `POST http://localhost:3001/indexing/create`
 4. **Index Products**: `POST http://localhost:3001/indexing/index`
-5. **Search**: `POST http://localhost:3001/search` (JSON body) or `GET http://localhost:3001/search?q=nitrile gloves`
-6. **Get Product**: `GET http://localhost:3001/search/product/:id`
-7. **Get Stats**: `GET http://localhost:3001/search/stats`
+5. **Search**: `POST http://localhost:3001/search` (JSON body required)
+6. **Get Suggestions**: `POST http://localhost:3001/search/suggestions` (JSON body required)
+7. **Get Product**: `GET http://localhost:3001/search/product/:id`
+8. **Get Stats**: `GET http://localhost:3001/search/stats`
+
+**Note:** All search endpoints use POST with JSON body format. See `docs/postman-collection.json` for complete examples.
 
 ## 🎯 Key Features Explained
 
@@ -285,11 +307,30 @@ The system handles:
 - **Vector Search**: Semantic understanding using BAAI/bge-small-en embeddings (local model)
 - **Combined**: Best of both worlds for relevance
 
-### User Personalization
+### User Personalization (10-Factor System)
 
-- Loads order history from `orders.json`
-- Boosts products user has ordered before
-- Additional boosts for high-rated, in-stock items
+The system implements comprehensive 10-factor personalization:
+
+1. **User Type Inference**: Automatically infers user type from order patterns
+2. **Preferred Vendors**: Boosts products from vendors user frequently orders from
+3. **Region Preferences**: Prioritizes products available in user's preferred regions
+4. **Quality Focus**: Boosts high-rated products for quality-conscious users
+5. **Inventory Preference**: Prioritizes in-stock items for users who need immediate delivery
+6. **Price Segment**: Adjusts results based on user's typical price range
+7. **Order History**: Strong boost for products user has ordered before
+8. **Delivery Mode**: Prioritizes products matching user's preferred delivery method
+9. **Order Frequency**: Adjusts recommendations for frequent vs. occasional buyers
+10. **Bulk Buying Patterns**: Boosts bulk-pack products for bulk buyers
+
+**Usage:**
+```bash
+# Automatic personalization (all 10 factors applied)
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"gloves","userId":"user_136","size":20}'
+```
+
+See [Personalization Factors](docs/PERSONALIZATION_FACTORS.md) for detailed documentation.
 
 ## 🔧 Configuration
 
