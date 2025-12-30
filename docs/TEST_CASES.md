@@ -433,20 +433,29 @@
 
 ### 8. Pagination
 
-#### Test 8.1: Basic Pagination
-**Test:** Test pagination with size and from  
+#### Test 8.1: Basic Pagination (search_after)
+**Test:** Test pagination with search_after cursor  
+**Request:**
+```json
+{
+  "query": "gloves",
+  "size": 10
+}
+```
+**Expected:** Returns first 10 results with nextCursor for pagination  
+**Status:** ✅ PASS
+
+#### Test 8.2: Next Page (search_after)
 **Request:**
 ```json
 {
   "query": "gloves",
   "size": 10,
-  "from": 0
+  "searchAfter": [38.35, "product_id_from_previous_response"]
 }
 ```
-**Expected:** Returns first 10 results  
+**Expected:** Returns next 10 results  
 **Status:** ✅ PASS
-
-#### Test 8.2: Second Page
 **Test:** Get second page of results  
 **Request:**
 ```json

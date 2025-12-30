@@ -173,8 +173,9 @@ Content-Type: application/json
 {
   "query": "gloves",
   "userId": "user_136",
+  "userType": "Safety Equipment Buyer",
   "size": 20
-}&userType=Safety%20Equipment%20Buyer
+}
 ```
 
 ## Data Analysis Summary

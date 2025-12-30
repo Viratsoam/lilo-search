@@ -94,14 +94,20 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ### Via API
 
 ```bash
-# Basic search
-curl "http://localhost:3001/search?q=nitrile%20gloves"
+# Basic search (JSON body format)
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"nitrile gloves","size":20}'
 
 # With personalization
-curl "http://localhost:3001/search?q=pump&userId=user_136"
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"pump","userId":"user_136","size":20}'
 
 # With filters
-curl "http://localhost:3001/search?q=gloves&category=Safety&minRating=4.0"
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"gloves","filters":{"category":"Safety","minRating":4.0},"size":20}'
 ```
 
 ## Troubleshooting
