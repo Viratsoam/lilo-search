@@ -1,0 +1,244 @@
+{
+  "info": {
+    "name": "Lilo Search API",
+    "description": "API collection for Lilo Search Engine",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Create Index",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/indexing/create",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["indexing", "create"]
+        }
+      }
+    },
+    {
+      "name": "Index Products",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/indexing/index",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["indexing", "index"]
+        }
+      }
+    },
+    {
+      "name": "Reindex",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/indexing/reindex",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["indexing", "reindex"]
+        }
+      }
+    },
+    {
+      "name": "Get Index Mapping",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/indexing/mapping",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["indexing", "mapping"]
+        }
+      }
+    },
+    {
+      "name": "Search - Basic",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/search?q=nitrile gloves",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"],
+          "query": [
+            {
+              "key": "q",
+              "value": "nitrile gloves"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Search - With Filters",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/search?q=pump&category=Industrial&minRating=4.0&inventoryStatus=in_stock",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"],
+          "query": [
+            {
+              "key": "q",
+              "value": "pump"
+            },
+            {
+              "key": "category",
+              "value": "Industrial"
+            },
+            {
+              "key": "minRating",
+              "value": "4.0"
+            },
+            {
+              "key": "inventoryStatus",
+              "value": "in_stock"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Search - Personalized",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/search?q=gloves&userId=user_136",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"],
+          "query": [
+            {
+              "key": "q",
+              "value": "gloves"
+            },
+            {
+              "key": "userId",
+              "value": "user_136"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Search - Typo Handling",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/search?q=nitril glovs",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"],
+          "query": [
+            {
+              "key": "q",
+              "value": "nitril glovs"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Search - Synonym Test",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/search?q=spanner",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"],
+          "query": [
+            {
+              "key": "q",
+              "value": "spanner"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Product by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/search/product/a3bfa04681079bb2df691aa4",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search", "product", "a3bfa04681079bb2df691aa4"]
+        }
+      }
+    },
+    {
+      "name": "Get Suggestions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/search/suggestions?q=nitrile",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search", "suggestions"],
+          "query": [
+            {
+              "key": "q",
+              "value": "nitrile"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Stats",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/search/stats",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search", "stats"]
+        }
+      }
+    }
+  ]
+}
+

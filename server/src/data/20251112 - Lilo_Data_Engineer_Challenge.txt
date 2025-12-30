@@ -1,0 +1,88 @@
+﻿Lilo — Senior Search Engineer Assignment
+1. Intro
+This hands-on exercise evaluates your ability to design, build, and explain a search experience for a B2B ecommerce platform using ELK stack.
+You will receive realistic synthetic datasets that include intentional data-quality problems.
+The challenge is to demonstrate how you model messy data, tune relevance, and personalize search results for different B2B user types.
+________________
+
+
+2. Provided Datasets
+2.1 products.json: Simulates a raw export of Lilo’s product catalog (10,000 records).
+Be careful with Missing or null fields, Typos, Inconsistent attributes, Duplicates and near-duplicates, Ambiguous titles, Poor category hierarchies, Synonym variations, Noisy numeric formats and inconsistent units.
+2.2 orders.json: Simulates 1,000 historical B2B orders.
+Keep an eye on: Existence in products.json, heavy customers, reference missing product_ids.
+2.3 Supporting files
+* synonyms.json: 20+ common synonym pairs to expand
+
+* categories.json: reference list of clean and messy hierarchies
+
+________________
+
+
+3. Assignment Overview
+Design and implement a search solution that:
+   1. Handles messy, inconsistent data gracefully.
+   2. Delivers relevant results for B2B ecommerce use cases.
+   3. Adapts ranking and results to different users.
+
+You may use Elasticsearch or OpenSearch deployed locally or in a free-tier cloud. You are free to code in any language (Python, JS, Java, etc.) to index and query data.
+________________
+
+
+4. Tasks
+Task 1 — Index Design and Mapping
+      * Create an index for the products dataset.
+      * Define mapping types and analyzers (tokenizer, lowercasing, filters).
+      * Explain how you handle inconsistent attribute keys and nested fields, non-normalized units (kg vs lbs vs oz), multi-region availability arrays, duplicated and ambiguous text.
+      * Decide which fields are searchable, filterable, or for boosting.
+
+Deliver: mapping JSON and brief explanation.
+Task 2 — Core Search Functionality
+Implement baseline keyword search across title, description, vendor, and key attributes. Test and show example queries such as: 3 hp sewage pump weir, nitrile glove bulk pack, pvc pipe 50mm, tomato (should return food items), tomato makeup (should return cosmetics)
+Deliver: query DSL examples or an API endpoint and sample responses.
+Task 3 — Handling Poor Data Quality
+Implement a robustness and relevance strategy by implementing with tools you think would help: Synonym analyzer, Fuzzy matching, spell correction, Query expansion, Normalization logic for units and casing, Deduplication, semantic or vector search, etc
+Deliver: explanation, code snippets, and example improved results.
+
+Task 4 — User-Level Customization and Boosting
+Create ranking logic that changes depending on user or context. 
+Deliver: example queries for two user personas and clear explanation of boosting logic.
+Task 5 — Explain
+Prepare a small and concise doc covering your indexing and search design decisions, key trade-offs made, example queries and outcomes, handling of messy data, how you would maintain synonym dictionaries, category taxonomy updates, data quality monitoring, relevance tuning and A/B tests, etc
+Optional: attach screenshots or a simple UI / notebook demo.
+________________
+
+
+5. Deliverables
+         1. Index mappings and settings files
+         2. Query samples or API code
+Short written report (Markdown, Google Doc, or PDF)
+         3. (Optional) demo notebook or UI
+         4. Any preprocessing scripts if used
+
+Package as a GitHub repo or ZIP with structure:
+            * /src
+            * /data
+            * /docs
+
+
+________________
+
+
+6. Evaluation Criteria
+
+
+Dimension
+	What we evaluate
+	Search design
+	Quality of mapping, analyzers, and ranking logic
+	Data quality handling
+	How robustly search handles typos, synonyms, missing values
+	User customization
+	Correct use of boosting and personalization
+	Scalability
+	Efficiency and maintainability of your index design
+	Communication
+	Clarity of documentation and reasoning
+	Innovation
+	Creative use of embeddings, hybrid search, or automation ideas

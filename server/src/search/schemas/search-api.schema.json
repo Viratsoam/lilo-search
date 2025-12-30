@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Lilo Search API Schema",
+  "description": "Complete JSON schema for the Lilo Search API - designed for scalability",
+  "version": "1.0.0",
+  "definitions": {
+    "SearchRequest": {
+      "type": "object",
+      "required": ["query"],
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Search query string",
+          "minLength": 1,
+          "example": "nitrile gloves"
+        },
+        "userId": {
+          "type": "string",
+          "description": "User ID for personalization",
+          "example": "user_136"
+        },
+        "userType": {
+          "type": "string",
+          "description": "Explicit user type for personalization",
+          "enum": [
+            "Safety Equipment Buyer",
+            "Industrial Equipment Buyer",
+            "Tools Buyer",
+            "Chemicals Buyer",
+            "Electrical Buyer",
+            "Food & Beverage Buyer",
+            "General Buyer"
+          ],
+          "example": "Safety Equipment Buyer"
+        },
+        "filters": {
+          "$ref": "#/definitions/SearchFilters"
+        },
+        "size": {
+          "type": "integer",
+          "description": "Number of results to return",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20,
+          "example": 20
+        },
+        "from": {
+          "type": "integer",
+          "description": "Number of results to skip (for pagination)",
+          "minimum": 0,
+          "default": 0,
+          "example": 0
+        },
+        "useHybridSearch": {
+          "type": "boolean",
+          "description": "Enable hybrid search (keyword + semantic)",
+          "default": true,
+          "example": true
+        }
+      }
+    },
+    "SearchFilters": {
+      "type": "object",
+      "description": "Search filter options",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Filter by category (supports hierarchy with >)",
+          "example": "Industrial > Pumps > Sewage Pumps"
+        },
+        "vendor": {
+          "type": "string",
+          "description": "Filter by vendor name",
+          "example": "Acme Industrial"
+        },
+        "region": {
+          "type": "string",
+          "description": "Filter by region availability (ISO country code)",
+          "enum": ["BR", "MX", "ES", "US", "CA", "UK", "DE", "FR"],
+          "example": "BR"
+        },
+        "minRating": {
+          "type": "number",
+          "description": "Minimum supplier rating (0.0 to 5.0)",
+          "minimum": 0,
+          "maximum": 5,
+          "example": 4.0
+        },
+        "inventoryStatus": {
+          "type": "string",
+          "description": "Filter by inventory status",
+          "enum": ["in_stock", "low_stock", "out_of_stock"],
+          "example": "in_stock"
+        }
+      }
+    },
+    "SearchResponse": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Original search query",
+          "example": "nitrile gloves"
+        },
+        "total": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "integer",
+              "description": "Total number of matching results",
+              "example": 1728
+            },
+            "relation": {
+              "type": "string",
+              "description": "Relation to total (eq = exact, gte = greater than or equal)",
+              "enum": ["eq", "gte"],
+              "example": "eq"
+            }
+          }
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SearchResultItem"
+          }
+        },
+        "took": {
+          "type": "integer",
+          "description": "Time taken for search in milliseconds",
+          "example": 45
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "integer",
+              "example": 0
+            },
+            "size": {
+              "type": "integer",
+              "example": 20
+            },
+            "totalPages": {
+              "type": "integer",
+              "example": 87
+            }
+          }
+        }
+      }
+    },
+    "SearchResultItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Product ID",
+          "example": "a3bfa04681079bb2df691aa4"
+        },
+        "title": {
+          "type": "string",
+          "description": "Product title",
+          "example": "Nitrile Gloves OEM"
+        },
+        "description": {
+          "type": "string",
+          "description": "Product description"
+        },
+        "vendor": {
+          "type": "string",
+          "description": "Vendor name",
+          "example": "Acme Industrial"
+        },
+        "sku": {
+          "type": "string",
+          "description": "Product SKU",
+          "example": "V6A5L"
+        },
+        "category": {
+          "type": "string",
+          "description": "Product category",
+          "example": "Safety > Gloves > Nitrile"
+        },
+        "score": {
+          "type": "number",
+          "description": "Search relevance score",
+          "example": 38.35
+        },
+        "supplier_rating": {
+          "type": "number",
+          "description": "Supplier rating (0.0 to 5.0)",
+          "minimum": 0,
+          "maximum": 5,
+          "example": 4.2
+        },
+        "inventory_status": {
+          "type": "string",
+          "description": "Inventory status",
+          "enum": ["in_stock", "low_stock", "out_of_stock"],
+          "example": "in_stock"
+        },
+        "region_availability": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Available regions",
+          "example": ["BR", "MX"]
+        }
+      }
+    }
+  },
+  "examples": {
+    "basicSearch": {
+      "query": "nitrile gloves",
+      "size": 20
+    },
+    "personalizedSearch": {
+      "query": "gloves",
+      "userId": "user_136",
+      "filters": {
+        "category": "Safety > Gloves",
+        "minRating": 4.0,
+        "inventoryStatus": "in_stock"
+      },
+      "size": 20,
+      "useHybridSearch": true
+    },
+    "filteredSearch": {
+      "query": "pump",
+      "filters": {
+        "category": "Industrial > Pumps",
+        "region": "BR",
+        "minRating": 4.0
+      },
+      "size": 10
+    }
+  }
+}
+
