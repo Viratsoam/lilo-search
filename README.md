@@ -2,6 +2,15 @@
 
 A comprehensive search engine for B2B ecommerce platforms built with **NestJS**, **Elasticsearch**, and **Next.js**. Features hybrid search (keyword + vector embeddings), robust data quality handling, and user personalization.
 
+- **Some Sample Screen**: Through Elasticsearch relevance tuning (analyzers, boosts, scoring strategies), we can significantly improve search precision and overall result quality.
+<img width="1511" height="849" alt="Screenshot 2025-12-30 at 11 50 36 PM" src="https://github.com/user-attachments/assets/8a672a30-419b-4b27-972c-f0e414e94b65" />
+<img width="1499" height="845" alt="Screenshot 2025-12-30 at 11 51 09 PM" src="https://github.com/user-attachments/assets/38cee271-dc33-4a77-a06c-2735c50458f1" />
+<img width="1442" height="841" alt="Screenshot 2025-12-30 at 11 51 44 PM" src="https://github.com/user-attachments/assets/a8e0286a-0b5a-4688-a7ba-17b9120a26e9" />
+<img width="1322" height="805" alt="Screenshot 2025-12-30 at 11 52 49 PM" src="https://github.com/user-attachments/assets/c9238c4b-d20a-4312-a74c-85ea4796e53a" />
+
+
+
+
 ## 🚀 Features
 
 - 🔍 **Hybrid Search**: Combines keyword search with semantic vector embeddings (BAAI/bge-small-en)
