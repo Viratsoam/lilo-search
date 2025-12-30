@@ -120,11 +120,15 @@ Frontend will start on `http://localhost:3000`
 # Health check
 curl http://localhost:3001/health
 
-# Search
-curl "http://localhost:3001/search?q=nitrile%20gloves"
+# Search (JSON body format)
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"nitrile gloves","size":20}'
 
 # Search with personalization
-curl "http://localhost:3001/search?q=pump&userId=user_136"
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"pump","userId":"user_136","size":20}'
 
 # Get stats
 curl http://localhost:3001/search/stats

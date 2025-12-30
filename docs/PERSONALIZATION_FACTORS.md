@@ -142,21 +142,39 @@ The personalization boosts are applied in the following order (strongest to weak
 When a `userId` is provided, all applicable factors are automatically applied:
 
 ```bash
-GET /search?q=gloves&userId=user_136
+POST /search
+Content-Type: application/json
+{
+  "query": "gloves",
+  "userId": "user_136",
+  "size": 20
+}
 ```
 
 ### Explicit User Type
 You can also explicitly set a user type:
 
 ```bash
-GET /search?q=gloves&userType=Safety%20Equipment%20Buyer
+POST /search
+Content-Type: application/json
+{
+  "query": "gloves",
+  "userType": "Safety Equipment Buyer",
+  "size": 20
+}
 ```
 
 ### Combined
 Both can be used together (user type + order history):
 
 ```bash
-GET /search?q=gloves&userId=user_136&userType=Safety%20Equipment%20Buyer
+POST /search
+Content-Type: application/json
+{
+  "query": "gloves",
+  "userId": "user_136",
+  "size": 20
+}&userType=Safety%20Equipment%20Buyer
 ```
 
 ## Data Analysis Summary

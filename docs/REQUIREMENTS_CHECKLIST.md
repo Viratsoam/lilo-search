@@ -111,7 +111,7 @@ This document provides a complete checklist of all requirements from the challen
   - `searchable_text^1` (includes attributes)
   - `category^2`
 - **Evidence:** `server/src/search/search.service.ts:157-169`
-- **API:** `GET /search?q=<query>`
+- **API:** `POST /search` (JSON body format)
 
 ### ✅ Requirement 2.2: Test query - "3 hp sewage pump weir"
 - **Status:** ✅ **COMPLETED**
@@ -157,7 +157,7 @@ This document provides a complete checklist of all requirements from the challen
 ### ✅ Deliverable 2: Query DSL examples or an API endpoint and sample responses
 - **Status:** ✅ **COMPLETED**
 - **Location:**
-  - API Endpoint: `GET /search?q=<query>`
+  - API Endpoint: `POST /search` (JSON body: `{"query": "<query>"}`)
   - Query DSL: `server/src/search/search.service.ts:143-493`
   - Sample Responses: `docs/DESIGN.md:200-250`
   - Postman Collection: `docs/postman-collection.json`
@@ -303,14 +303,14 @@ This document provides a complete checklist of all requirements from the challen
   - User Type: "Safety Equipment Buyer"
   - Preferred Categories: Safety > Gloves > Nitrile, Safety > Masks > Respirators
   - Preferred Vendors: Acme Industrial, Delta Valves
-  - Test: `GET /search?q=gloves&userType=Safety%20Equipment%20Buyer`
+  - Test: `POST /search` with `{"query": "gloves", "userType": "Safety Equipment Buyer"}`
   - Result: ✅ Safety gloves prioritized
 
 - **Persona 2: Industrial Equipment Buyer**
   - User Type: "Industrial Equipment Buyer"
   - Preferred Categories: Industrial > Pumps > Sewage Pumps, Industrial > Compressors
   - Preferred Vendors: United Fasteners, Nordic Compressors
-  - Test: `GET /search?q=pump&userType=Industrial%20Equipment%20Buyer`
+  - Test: `POST /search` with `{"query": "pump", "userType": "Industrial Equipment Buyer"}`
   - Result: ✅ Industrial pumps prioritized
 
 - **Evidence:** `PROJECT_SUMMARY.md:240-260`
@@ -416,7 +416,7 @@ This document provides a complete checklist of all requirements from the challen
 ### ✅ Deliverable 2: Query samples or API code
 - **Status:** ✅ **COMPLETED**
 - **Location:**
-  - API: `GET /search?q=<query>`
+  - API: `POST /search` (JSON body format)
   - Code: `server/src/search/search.service.ts`
   - Postman Collection: `docs/postman-collection.json`
   - Examples: `PROJECT_SUMMARY.md:147-180`

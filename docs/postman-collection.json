@@ -1,8 +1,9 @@
 {
   "info": {
     "name": "Lilo Search API",
-    "description": "API collection for Lilo Search Engine",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "description": "API collection for Lilo Search Engine - All endpoints use JSON body format",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0"
   },
   "item": [
     {
@@ -16,7 +17,8 @@
           "host": ["localhost"],
           "port": "3001",
           "path": ["health"]
-        }
+        },
+        "description": "Check API health and feature flags status"
       }
     },
     {
@@ -30,7 +32,8 @@
           "host": ["localhost"],
           "port": "3001",
           "path": ["indexing", "create"]
-        }
+        },
+        "description": "Create Elasticsearch index with schema from elasticsearch-schema.json"
       }
     },
     {
@@ -44,7 +47,8 @@
           "host": ["localhost"],
           "port": "3001",
           "path": ["indexing", "index"]
-        }
+        },
+        "description": "Index all products from products.json (~10K products, takes ~30 seconds)"
       }
     },
     {
@@ -58,7 +62,8 @@
           "host": ["localhost"],
           "port": "3001",
           "path": ["indexing", "reindex"]
-        }
+        },
+        "description": "Delete and recreate index, then reindex all products"
       }
     },
     {
@@ -72,124 +77,321 @@
           "host": ["localhost"],
           "port": "3001",
           "path": ["indexing", "mapping"]
-        }
+        },
+        "description": "Get Elasticsearch index mapping and settings (loaded from elasticsearch-schema.json)"
       }
     },
     {
-      "name": "Search - Basic",
+      "name": "Search - Basic (JSON Body)",
       "request": {
-        "method": "GET",
-        "header": [],
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"nitrile gloves\",\n  \"size\": 20\n}"
+        },
         "url": {
-          "raw": "http://localhost:3001/search?q=nitrile gloves",
+          "raw": "http://localhost:3001/search",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3001",
-          "path": ["search"],
-          "query": [
-            {
-              "key": "q",
-              "value": "nitrile gloves"
-            }
-          ]
-        }
+          "path": ["search"]
+        },
+        "description": "Basic search using JSON body format"
       }
     },
     {
-      "name": "Search - With Filters",
+      "name": "Search - With Filters (JSON Body)",
       "request": {
-        "method": "GET",
-        "header": [],
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"pump\",\n  \"filters\": {\n    \"category\": \"Industrial\",\n    \"minRating\": 4.0,\n    \"inventoryStatus\": \"in_stock\"\n  },\n  \"size\": 20\n}"
+        },
         "url": {
-          "raw": "http://localhost:3001/search?q=pump&category=Industrial&minRating=4.0&inventoryStatus=in_stock",
+          "raw": "http://localhost:3001/search",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3001",
-          "path": ["search"],
-          "query": [
-            {
-              "key": "q",
-              "value": "pump"
+          "path": ["search"]
+        },
+        "description": "Search with filters using JSON body format"
+      }
+    },
+    {
+      "name": "Search - Personalized (JSON Body)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"gloves\",\n  \"userId\": \"user_136\",\n  \"size\": 20\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/search",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"]
+        },
+        "description": "Personalized search with user ID (10-factor personalization)"
+      }
+    },
+    {
+      "name": "Search - With Pagination (search_after)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"gloves\",\n  \"size\": 20,\n  \"searchAfter\": [38.35, \"product_id_here\"]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/search",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"]
+        },
+        "description": "Search with search_after pagination (cursor-based, no 10K limit). Use nextCursor from previous response."
+      }
+    },
+    {
+      "name": "Search - Typo Handling (JSON Body)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"nitril glovs\",\n  \"size\": 20,\n  \"featureFlags\": {\n    \"fuzzyMatchingEnabled\": true\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/search",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"]
+        },
+        "description": "Test typo handling with fuzzy matching enabled"
+      }
+    },
+    {
+      "name": "Search - Synonym Test (JSON Body)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"spanner\",\n  \"size\": 20\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/search",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"]
+        },
+        "description": "Test synonym expansion (spanner → wrench)"
+      }
+    },
+    {
+      "name": "Search - Keyword Only (JSON Body)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"gloves\",\n  \"size\": 20,\n  \"featureFlags\": {\n    \"searchStrategy\": \"keyword_only\"\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/search",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"]
+        },
+        "description": "Baseline keyword search (no semantic/vector search)"
+      }
+    },
+    {
+      "name": "Search - Hybrid Search (JSON Body)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"gloves\",\n  \"size\": 20,\n  \"featureFlags\": {\n    \"searchStrategy\": \"hybrid\"\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/search",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["search"]
+        },
+        "description": "Hybrid search (keyword + semantic embeddings)"
+      }
+    },
+    {
+      "name": "Search - Baseline Test Cases",
+      "item": [
+        {
+          "name": "3 hp sewage pump weir",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"3 hp sewage pump weir\",\n  \"size\": 5,\n  \"featureFlags\": {\n    \"searchStrategy\": \"keyword_only\"\n  }\n}"
             },
-            {
-              "key": "category",
-              "value": "Industrial"
+            "url": {
+              "raw": "http://localhost:3001/search",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["search"]
+            }
+          }
+        },
+        {
+          "name": "nitrile glove bulk pack",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"nitrile glove bulk pack\",\n  \"size\": 5,\n  \"featureFlags\": {\n    \"searchStrategy\": \"keyword_only\"\n  }\n}"
             },
-            {
-              "key": "minRating",
-              "value": "4.0"
+            "url": {
+              "raw": "http://localhost:3001/search",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["search"]
+            }
+          }
+        },
+        {
+          "name": "pvc pipe 50mm",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"pvc pipe 50mm\",\n  \"size\": 5,\n  \"featureFlags\": {\n    \"searchStrategy\": \"keyword_only\"\n  }\n}"
             },
-            {
-              "key": "inventoryStatus",
-              "value": "in_stock"
+            "url": {
+              "raw": "http://localhost:3001/search",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["search"]
             }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Search - Personalized",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3001/search?q=gloves&userId=user_136",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3001",
-          "path": ["search"],
-          "query": [
-            {
-              "key": "q",
-              "value": "gloves"
+          }
+        },
+        {
+          "name": "tomato (Food Context)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"tomato\",\n  \"size\": 5,\n  \"featureFlags\": {\n    \"searchStrategy\": \"keyword_only\"\n  }\n}"
             },
-            {
-              "key": "userId",
-              "value": "user_136"
+            "url": {
+              "raw": "http://localhost:3001/search",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["search"]
             }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Search - Typo Handling",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3001/search?q=nitril glovs",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3001",
-          "path": ["search"],
-          "query": [
-            {
-              "key": "q",
-              "value": "nitril glovs"
+          }
+        },
+        {
+          "name": "tomato makeup (Cosmetics Context)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"tomato makeup\",\n  \"size\": 5,\n  \"featureFlags\": {\n    \"searchStrategy\": \"keyword_only\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/search",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["search"]
             }
-          ]
+          }
         }
-      }
-    },
-    {
-      "name": "Search - Synonym Test",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3001/search?q=spanner",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3001",
-          "path": ["search"],
-          "query": [
-            {
-              "key": "q",
-              "value": "spanner"
-            }
-          ]
-        }
-      }
+      ]
     },
     {
       "name": "Get Product by ID",
@@ -202,27 +404,32 @@
           "host": ["localhost"],
           "port": "3001",
           "path": ["search", "product", "a3bfa04681079bb2df691aa4"]
-        }
+        },
+        "description": "Get product details by ID"
       }
     },
     {
-      "name": "Get Suggestions",
+      "name": "Get Suggestions (JSON Body)",
       "request": {
-        "method": "GET",
-        "header": [],
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"glov\",\n  \"size\": 5\n}"
+        },
         "url": {
-          "raw": "http://localhost:3001/search/suggestions?q=nitrile",
+          "raw": "http://localhost:3001/search/suggestions",
           "protocol": "http",
           "host": ["localhost"],
           "port": "3001",
-          "path": ["search", "suggestions"],
-          "query": [
-            {
-              "key": "q",
-              "value": "nitrile"
-            }
-          ]
-        }
+          "path": ["search", "suggestions"]
+        },
+        "description": "Get search suggestions using JSON body format"
       }
     },
     {
@@ -236,9 +443,9 @@
           "host": ["localhost"],
           "port": "3001",
           "path": ["search", "stats"]
-        }
+        },
+        "description": "Get search statistics (total products, categories, vendors)"
       }
     }
   ]
 }
-

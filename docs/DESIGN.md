@@ -726,19 +726,28 @@ The Lilo Search Engine successfully handles messy B2B ecommerce data while deliv
 
 ## Appendix: API Examples
 
-### Search Request
+### Search Request (JSON Body Format)
 ```bash
-curl "http://localhost:3001/search?q=nitrile%20gloves&userId=user_136&size=20"
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "nitrile gloves",
+    "userId": "user_136",
+    "size": 20
+  }'
 ```
 
 ### Response
 ```json
 {
   "query": "nitrile gloves",
-  "total": 45,
+  "total": {
+    "value": 1728,
+    "relation": "eq"
+  },
   "results": [
     {
-      "_id": "a3bfa04681079bb2df691aa4",
+      "id": "a3bfa04681079bb2df691aa4",
       "title": "Nitrile Gloves replacement high-flow colour red",
       "vendor": "United Fasteners",
       "category": "Safety > Gloves > Nitrile",
@@ -747,8 +756,24 @@ curl "http://localhost:3001/search?q=nitrile%20gloves&userId=user_136&size=20"
       "score": 12.45
     }
   ],
-  "took": 23
+  "took": 23,
+  "pagination": {
+    "size": 20,
+    "nextCursor": [12.45, "a3bfa04681079bb2df691aa4"],
+    "hasMore": true
+  }
 }
+```
+
+### Search with Pagination (search_after)
+```bash
+curl -X POST http://localhost:3001/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "nitrile gloves",
+    "size": 20,
+    "searchAfter": [12.45, "a3bfa04681079bb2df691aa4"]
+  }'
 ```
 
 ---
